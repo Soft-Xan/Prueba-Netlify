@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Conexión Supabase</title>
+</head>
+<body>
+  <h1>Usuarios</h1>
+  <ul id="usuarios"></ul>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js';
+
+    const SUPABASE_URL = 'https://bgazopnigpdmaktlhygy.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnYXpvcG5pZ3BkbWFrdGxoeWd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUyMDY3MTUsImV4cCI6MjA3MDc4MjcxNX0.d4Auqq4XjFqKZk9KOPXtUcrMEgJCN2RyHlbLCgnLXZw';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function cargarUsuarios() {
+      let { data, error } = await supabase.from('usuario').select('*');
+      if (error) {
+        console.error('Error:', error);
+        return;
+      }
+      const lista = document.getElementById('usuarios');
+      data.forEach(user => {
+        const li = document.createElement('li');
+        li.textContent = `${user.nombre} ${user.apellido}`;
+        lista.appendChild(li);
+      });
+    }
+
+    cargarUsuarios();
+  </script>
+</body>
+</html>
