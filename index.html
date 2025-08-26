@@ -2,11 +2,22 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Conexión Supabase</title>
+  <title>Login con Supabase</title>
 </head>
 <body>
-  <h1>Usuarios</h1>
-  <ul id="usuarios"></ul>
+  <h1>Login</h1>
+  
+  <form id="loginForm">
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" required><br><br>
+    
+    <label for="rut">RUT:</label>
+    <input type="number" id="rut" required><br><br>
+    
+    <button type="submit">Ingresar</button>
+  </form>
+
+  <div id="resultado"></div>
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js';
@@ -16,21 +27,34 @@
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function cargarUsuarios() {
-      let { data, error } = await supabase.from('usuario').select('*');
-      if (error) {
-        console.error('Error:', error);
-        return;
-      }
-      const lista = document.getElementById('usuarios');
-      data.forEach(user => {
-        const li = document.createElement('li');
-        li.textContent = `${user.nombre} ${user.apellido}`;
-        lista.appendChild(li);
-      });
-    }
+    const form = document.getElementById('loginForm');
+    const resultado = document.getElementById('resultado');
 
-    cargarUsuarios();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nombre = document.getElementById('nombre').value.trim();
+      const rut = parseInt(document.getElementById('rut').value);
+
+      // Consultar usuario en la base de datos
+      const { data, error } = await supabase
+        .from('usuario')
+        .select('*')
+        .eq('nombre', nombre)
+        .eq('rut', rut)
+        .single(); // esperamos un único usuario
+
+      if (error || !data) {
+        resultado.textContent = 'Credenciales incorrectas ❌';
+        resultado.style.color = 'red';
+      } else {
+        resultado.textContent = `Bienvenido ${data.nombre} (${data.apellido}) ✅`;
+        resultado.style.color = 'green';
+
+        // Aquí puedes redirigir a otra página:
+        // window.location.href = "dashboard.html";
+      }
+    });
   </script>
 </body>
 </html>
